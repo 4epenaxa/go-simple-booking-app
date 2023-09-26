@@ -30,6 +30,7 @@ func main() {
 		isValidEmail, isValidName, isValidTicketsNumber := helper.ValidateUserInput(email, firstName, lastName, userTickets, remainingTickets)
 		if isValidEmail && isValidName && isValidTicketsNumber {
 			bookTickets(userTickets, firstName, lastName, email)
+			sendTicket(userTickets, firstName, lastName, email)
 			firstNames := getFirstNames()
 			fmt.Printf("The first names of all bookings are:\n %v\n", firstNames)
 			if remainingTickets == 0 {
@@ -107,4 +108,11 @@ func bookTickets(userTickets uint, firstName string, lastName string, email stri
 	fmt.Printf("List of booking:\n %v\n", bookings)
 	fmt.Printf("Thank you %v %v for booking %v tickets. You will receive a confirmation mail at %v\n", firstName, lastName, userTickets, email)
 	fmt.Printf("%v tickets remaining for %v.\n", remainingTickets, conferenceName)
+}
+
+func sendTicket(userTickets uint, firstName string, lastName string, email string) {
+	var ticket = fmt.Sprintf("%v tickets for %v %v", userTickets, firstName, lastName)
+	fmt.Println("=================")
+	fmt.Println("Sending ticket to: \"%v\"\n%v\n", email, ticket)
+	fmt.Println("=================")
 }
