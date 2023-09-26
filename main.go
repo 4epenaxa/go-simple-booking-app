@@ -3,15 +3,14 @@ package main
 import (
 	"booking-app/helper"
 	"fmt"
+	"sync"
+	"time"
 )
 
 const conferenceTickets = 50
 
 var conferenceName = "Go Conference"
 var remainingTickets uint = 50
-
-// v1 empty list of maps of strings
-// var bookings = make([]map[string]string, 0)
 
 type UserData struct {
 	firstName       string
@@ -20,8 +19,8 @@ type UserData struct {
 	numberOfTickets uint
 }
 
-// v2 empty list of struct
 var bookings = make([]UserData, 0)
+var wg = sync.WaitGroup{}
 
 func main() {
 	greetUser()
@@ -30,7 +29,8 @@ func main() {
 		isValidEmail, isValidName, isValidTicketsNumber := helper.ValidateUserInput(email, firstName, lastName, userTickets, remainingTickets)
 		if isValidEmail && isValidName && isValidTicketsNumber {
 			bookTickets(userTickets, firstName, lastName, email)
-			sendTicket(userTickets, firstName, lastName, email)
+			wg.Add(1)
+			go sendTicket(userTickets, firstName, lastName, email)
 			firstNames := getFirstNames()
 			fmt.Printf("The first names of all bookings are:\n %v\n", firstNames)
 			if remainingTickets == 0 {
@@ -53,6 +53,7 @@ func main() {
 			}
 		}
 	}
+	wg.Wait()
 }
 
 func greetUser() {
@@ -64,9 +65,6 @@ func greetUser() {
 func getFirstNames() []string {
 	firstNames := []string{}
 	for _, booking := range bookings {
-		//v1
-		//firstNames = append(firstNames, booking["firstNames"])
-		//v2
 		firstNames = append(firstNames, booking.firstName)
 	}
 	return firstNames
@@ -90,14 +88,6 @@ func getUserInput() (string, string, string, uint) {
 
 func bookTickets(userTickets uint, firstName string, lastName string, email string) {
 	remainingTickets -= userTickets
-	//v1
-	// var userData = make(map[string]string)
-	// userData["firstName"] = firstName
-	// userData["lastName"] = lastName
-	// userData["email"] = email
-	// userData["numberOfTickets"] = strconv.FormatUint(uint64(userTickets), 10)
-
-	//v2
 	var userData = UserData{
 		firstName:       firstName,
 		lastName:        lastName,
@@ -111,8 +101,10 @@ func bookTickets(userTickets uint, firstName string, lastName string, email stri
 }
 
 func sendTicket(userTickets uint, firstName string, lastName string, email string) {
+	time.Sleep(10 * time.Second)
 	var ticket = fmt.Sprintf("%v tickets for %v %v", userTickets, firstName, lastName)
-	fmt.Println("=================")
-	fmt.Println("Sending ticket to: \"%v\"\n%v\n", email, ticket)
-	fmt.Println("=================")
+	fmt.Printf("\n=================\n")
+	fmt.Printf("Sending ticket to: \"%v\"\n%v\n", email, ticket)
+	fmt.Printf("=================\n")
+	wg.Done()
 }
